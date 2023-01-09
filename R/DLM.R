@@ -1035,7 +1035,7 @@ dlmLL <- function(y, mod, debug=FALSE)
 }
 
 
-dlmFilter <- function(y, mod, debug = FALSE, simplify = FALSE)
+dlmFilter <- function(y, mod, debug = FALSE, simplify = FALSE, diagonalVW = FALSE)
 {
     ## Note: V must be nonsingular. It will be forced to be so,
     ## with a warning, otherwise (time-invariant case only).
@@ -1087,9 +1087,15 @@ dlmFilter <- function(y, mod, debug = FALSE, simplify = FALSE)
             storage.mode(mod$JW) <- "integer"
         }
         if (any(c(tvFF,tvV,tvGG,tvW))) {
-            mod <- mod[match(c("m0", "C0", "FF", "V", "GG", "W",
-                               "JFF", "JV", "JGG", "JW", "X"), names(mod))]
-            ans <- .Call(C_dlmFilter, y, mod, tvFF, tvV, tvGG, tvW, PACKAGE = "dlm")
+            if (diagonalVW) { ## If V and W are diagonal, use a different C++ function to speed things up
+                mod <- mod[match(c("m0", "C0", "FF", "V", "GG", "W",
+                                   "JFF", "JV", "JGG", "JW", "X"), names(mod))]
+                ans <- .Call(C_dlmFilterVW, y, mod, tvFF, tvV, tvGG, tvW, PACKAGE = "dlm")    
+            } else { ## Normal C++ function
+                mod <- mod[match(c("m0", "C0", "FF", "V", "GG", "W",
+                                   "JFF", "JV", "JGG", "JW", "X"), names(mod))]
+                ans <- .Call(C_dlmFilter, y, mod, tvFF, tvV, tvGG, tvW, PACKAGE = "dlm")
+            }
         } else {
             mod <- mod[match(c("m0", "C0", "FF", "V", "GG", "W"), names(mod))]
             ans <- .Call(C_dlmFilter0, y, mod, PACKAGE = "dlm")
