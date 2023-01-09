@@ -26,7 +26,7 @@ R_CallMethodDef callMethods[] = {
   {"dlmLL", (DL_FUNC) &dlmLL, 6},
   {"dlmLL0", (DL_FUNC) &dlmLL0, 2},
   {"dlmFilter", (DL_FUNC) &dlmFilter, 6},
-  {"dlmFilterVW", (DL_FUNC) &dlmFilter, 6},
+  {"dlmFilterVW", (DL_FUNC) &dlmFilterVW, 6},
   {"dlmFilter0", (DL_FUNC) &dlmFilter0, 2},
   {"dlmSmooth", (DL_FUNC) &dlmSmooth, 4},
   {"dlmSmooth0", (DL_FUNC) &dlmSmooth0, 2},
