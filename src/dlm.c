@@ -2136,29 +2136,23 @@ SEXP dlmFilterVW(SEXP y, SEXP mod, SEXP tvFF, SEXP tvV, SEXP tvGG, SEXP tvW)
 	if (stvFF) 
 	    for (i = 0; i < nrJFF; i++)
 		sFF[ sJFF[i] + m * sJFF[i + nrJFF] ] = sX[ t + n * sJFF[i + 2 * nrJFF] ];
+	/** Begin speedup for Diagonal VW Case **/
 	if (stvV) {
 	    for (i = 0; i < nrJV; i++)
 		sV[ sJV[i] + m * sJV[i + nrJV] ] = sX[ t + n * sJV[i + 2 * nrJV] ];
+	    /** V is a multiple of identity matrix, so all singular values are equal and u, v are the identity matrix **/
+	    tmp = sqrt( sV[0] ); 
+	    tmp1 = 1 / tmp;
+	    tmp1 = R_FINITE(tmp1) ? tmp1 : 0.0;
 	    for (i = 0; i < m; i++) {
-		for (j = 0; j<i; j++) 
-		    tmpMat[i + la_m * j] = tmpMat[j + la_m * i] = 
-			sV[i + m * j];
-		tmpMat[i + la_m * j] = sV[i + m * j];
-	    }
-	    F77_CALL(dgesdd)(&la_jobz,
-			     &m, &m, tmpMat, &la_m, la_s,
-			     la_u, &la_m,
-			     la_vt, &max_m_p,
-			     la_work, &la_lwork, la_iwork, &la_info);
-	    if (la_info != 0)
-		error("error code %d from Lapack routine dgesdd", la_info);
-	    for (i = 0; i < m; i++) {
-		tmp = sqrt( la_s[i] );
-		tmp1 = 1 / tmp;
-		tmp1 = R_FINITE(tmp1) ? tmp1 : 0.0;
-		for (j = 0; j<m; j++) {
-		    sqrtV[i + j * m] = tmp * la_vt[i + j * max_m_p];
-		    sqrtVinv[i + j * m] = tmp1 * la_vt[i + j * max_m_p];
+		for (j = 0; j < m; j++) {
+		    if(i==j) {
+		        sqrtV[i + j * m] = tmp;
+		        sqrtVinv[i + j * m] = tmp1 * la_vt;	        
+		    } else {
+		        sqrtV[i + j * m] = 0.0;
+		        sqrtVinv[i + j * m] = 0.0;	        
+		    }
 		}
 	    }
 	}
@@ -2169,22 +2163,14 @@ SEXP dlmFilterVW(SEXP y, SEXP mod, SEXP tvFF, SEXP tvV, SEXP tvGG, SEXP tvW)
 	    for (i = 0; i < nrJW; i++)
 		sW[ sJW[i] + p * sJW[i + nrJW] ] = sX[ t + n * sJW[i + 2 * nrJW] ];
 	    for (i = 0; i < p; i++) {
-		for (j = 0; j < i; j++) 
-		    tmpMat[i + la_m * j] = tmpMat[j + la_m * i] = 
-			sW[i + p * j];
-		tmpMat[i + la_m * j] = sW[i + p * j];
-	    }
-	    F77_CALL(dgesdd)(&la_jobz,
-			     &p, &p, tmpMat, &la_m, la_s,
-			     la_u, &la_m,
-			     la_vt, &max_m_p,
-			     la_work, &la_lwork, la_iwork, &la_info);
-	    if (la_info != 0)
-		error("error code %d from Lapack routine dgesdd", la_info);
-	    for (i = 0; i < p; i++) {
-		tmp = sqrt( la_s[i] );
-		for (j = 0; j < p; j++) 
-		    sqrtW[i + j * p] = tmp * la_vt[i + j * max_m_p];
+		tmp = sqrt( sW[0] );
+		for (j = 0; j < p; j++) {
+		    if(i==j) {
+		        sqrtW[i + j * p] = tmp;      
+		    } else {
+		        sqrtW[i + j * p] = 0.0;
+		    }
+		}
 	    }
 	}
 	if (stvFV) {
@@ -2208,6 +2194,8 @@ SEXP dlmFilterVW(SEXP y, SEXP mod, SEXP tvFF, SEXP tvV, SEXP tvGG, SEXP tvW)
 		    tF_Vinv[i + j * p] = tmp;
 		}
 	}
+	/** end speedup for diagonal VW case **/
+	    
 	/** check for missing values **/
 	numNA = 0;
 	for (i = 0; i < m; i++)
