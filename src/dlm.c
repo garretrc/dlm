@@ -2148,7 +2148,7 @@ SEXP dlmFilterVW(SEXP y, SEXP mod, SEXP tvFF, SEXP tvV, SEXP tvGG, SEXP tvW)
 		for (j = 0; j < m; j++) {
 		    if(i==j) {
 		        sqrtV[i + j * m] = tmp;
-		        sqrtVinv[i + j * m] = tmp1 * la_vt;	        
+		        sqrtVinv[i + j * m] = tmp1;	        
 		    } else {
 		        sqrtV[i + j * m] = 0.0;
 		        sqrtVinv[i + j * m] = 0.0;	        
