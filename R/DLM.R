@@ -1087,14 +1087,14 @@ dlmFilter <- function(y, mod, debug = FALSE, simplify = FALSE, diagonalVW = FALS
             storage.mode(mod$JW) <- "integer"
         }
         if (any(c(tvFF,tvV,tvGG,tvW))) {
-            if (diagonalVW) { ## If V and W are diagonal, use a different C++ function to speed things up
+            if (diagonalVW == FALSE) { ## Normal C++ function
                 mod <- mod[match(c("m0", "C0", "FF", "V", "GG", "W",
                                    "JFF", "JV", "JGG", "JW", "X"), names(mod))]
-                ans <- .Call(C_dlmFilterVW, y, mod, tvFF, tvV, tvGG, tvW, PACKAGE = "dlm")    
-            } else { ## Normal C++ function
+                ans <- .Call(C_dlmFilter, y, mod, tvFF, tvV, tvGG, tvW, PACKAGE = "dlm")    
+            } else { ## If V and W are diagonal, use a different C++ function to speed things up
                 mod <- mod[match(c("m0", "C0", "FF", "V", "GG", "W",
                                    "JFF", "JV", "JGG", "JW", "X"), names(mod))]
-                ans <- .Call(C_dlmFilter, y, mod, tvFF, tvV, tvGG, tvW, PACKAGE = "dlm")
+                ans <- .Call(C_dlmFilterVW, y, mod, tvFF, tvV, tvGG, tvW, PACKAGE = "dlm")
             }
         } else {
             mod <- mod[match(c("m0", "C0", "FF", "V", "GG", "W"), names(mod))]
