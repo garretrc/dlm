@@ -2174,7 +2174,7 @@ SEXP dlmFilterVW(SEXP y, SEXP mod, SEXP tvFF, SEXP tvV, SEXP tvGG, SEXP tvW)
 	    }
 	}
 	if (stvFV) {
-	    tmp = sqrtVinv[0]*sqrtVinv[0]
+	    tmp = sqrtVinv[0]*sqrtVinv[0];
 	    for (i = 0; i < p ; i++) 
 		for (j = 0; j < m; j++) {
 		    tF_Vinv[i + j * p] = tmp*sFF[j + i * m];
