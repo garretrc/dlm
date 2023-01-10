@@ -2141,9 +2141,6 @@ SEXP dlmFilterVW(SEXP y, SEXP mod, SEXP tvFF, SEXP tvV, SEXP tvGG, SEXP tvW)
 	    for (i = 0; i < nrJV; i++)
 		sV[ sJV[i] + m * sJV[i + nrJV] ] = sX[ t + n * sJV[i + 2 * nrJV] ];
 	    /** V is a multiple of identity matrix, so all singular values are equal and u, v are the identity matrix **/
-	    if(stvW){
-	       
-	    }
 	    tmp = sqrt( sV[0] ); 
 	    tmp1 = 1 / tmp;
 	    tmp1 = R_FINITE(tmp1) ? tmp1 : 0.0;
