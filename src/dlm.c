@@ -2174,24 +2174,10 @@ SEXP dlmFilterVW(SEXP y, SEXP mod, SEXP tvFF, SEXP tvV, SEXP tvGG, SEXP tvW)
 	    }
 	}
 	if (stvFV) {
-	    for (i = 0; i < m; i++) {
-		for (j = 0; j < i; j++) {
-		    tmp = 0.0;
-		    for (k = 0; k < m; k++)
-			tmp += sqrtVinv[k + i * m] * sqrtVinv[k + j * m];
-		    tmpMat[i + j * la_m] = tmpMat[j + i * la_m] = tmp;
-		}
-		tmp = 0.0;
-		for (k = 0; k < m; k++)
-		    tmp += SQR( sqrtVinv[k + i * m] );
-		tmpMat[i + i * la_m] = tmp;
-	    }
+	    tmp = sqrtVinv[0]*sqrtVinv[0]
 	    for (i = 0; i < p ; i++) 
 		for (j = 0; j < m; j++) {
-		    tmp = 0.0;
-		    for (k = 0; k < m; k++)
-			tmp += sFF[k + i * m] * tmpMat[k + j * la_m];
-		    tF_Vinv[i + j * p] = tmp;
+		    tF_Vinv[i + j * p] = tmp*sFF[j + i * m];
 		}
 	}
 	/** end speedup for diagonal VW case **/
