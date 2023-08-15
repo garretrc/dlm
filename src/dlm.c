@@ -1976,8 +1976,8 @@ SEXP dlmFilterVW(SEXP y, SEXP mod, SEXP tvFF, SEXP tvV, SEXP tvGG, SEXP tvW)
     sV = REAL(VECTOR_ELT(mod,3));
     sGG = REAL(VECTOR_ELT(mod,4));
     sW = REAL(VECTOR_ELT(mod,5));
-    sqrtV = (double *) R_alloc( m * m, sizeof(double) );
-    sqrtVinv = (double *) R_alloc( m * m, sizeof(double) );
+    sqrtV = (double *) S_alloc( m * m, sizeof(double) );
+    sqrtVinv = (double *) S_alloc( m * m, sizeof(double) );
     sqrtW = (double *) R_alloc( p * p, sizeof(double) );
     tF_Vinv = (double *) R_alloc( p * m, sizeof(double) );
     Uy = (double *) R_alloc( m * m, sizeof(double) );
@@ -2145,15 +2145,8 @@ SEXP dlmFilterVW(SEXP y, SEXP mod, SEXP tvFF, SEXP tvV, SEXP tvGG, SEXP tvW)
 	    tmp1 = 1 / tmp;
 	    tmp1 = R_FINITE(tmp1) ? tmp1 : 0.0;
 	    for (i = 0; i < m; i++) {
-		for (j = 0; j < m; j++) {
-		    if(i==j) {
-		        sqrtV[i + j * m] = tmp;
-		        sqrtVinv[i + j * m] = tmp1;	        
-		    } else {
-		        sqrtV[i + j * m] = 0.0;
-		        sqrtVinv[i + j * m] = 0.0;	        
-		    }
-		}
+		sqrtV[i + i * m] = tmp;
+		sqrtVinv[i + i * m] = tmp1;	        
 	    }
 	}
 	if (stvGG) 
